@@ -1,32 +1,28 @@
-# SK쉴더스 루키즈 6기 - 웹스크래핑 & 데이터분석 연습문제
+# SK Shieldus Rookies 과제 모음
 
-- **제출자**: 홍서연
-- **과정명**: SK쉴더스 루키즈 6기
+SK쉴더스 루키즈 교육과정에서 진행한 과제들을 주제별로 정리한 레포지토리입니다.
 
-## 과제 구성
+## 📁 디렉토리 구조
 
-### 01_news_scraping.ipynb
+| 디렉토리                                          | 내용                                |
+| ------------------------------------------------- | ----------------------------------- |
+| [`python-data-analysis/`](./python-data-analysis) | 데이터 분석을 위한 Python 학습 과제 |
+| [`java-framework/`](./java-framework)             | Spring Framework 학습 과제          |
 
-| 문항 | 내용 | 상태 |
-| --- | --- | --- |
-| 1-1 | Daum 경제 뉴스(`news.daum.net/economy`)에서 기사 링크·제목 스크래핑 | ✅ 완료 |
-| 1-2 | 섹션명을 입력받아 해당 섹션 뉴스를 출력하는 `print_news()` 함수 구현 | ✅ 완료 |
-| 2-1 | Nate 뉴스 6개 섹션의 이미지·제목·링크 스크래핑 | ✅ 완료 |
-| 2-2 | 네이버 웹툰 특정 회차의 이미지를 다운로드하는 `download_one_episode()` 함수 구현 | ✅ 완료 |
+---
 
-### 04_pop_analysis.ipynb
+## python-data-analysis
 
-`data/인구현황.csv`를 활용한 인구현황 데이터 분석.
+데이터 수집, 전처리, 분석 실습 (Jupyter Notebook)
 
-| 문항 | 내용 | 상태 |
-| --- | --- | --- |
-| 4-1 | 지역별 총인구수 Top5 및 시각화 | ✅ 완료 |
-| 4-1 | 세대당 인구수 Top5 및 시각화 | ✅ 완료 |
-| 4-1 | 남녀 비율 분석 및 시각화 (axhline 기준선 포함) | ✅ 완료 |
-| 4-1 | 남자초과/여자초과 지역 분석 | ✅ 완료 |
-| 4-1 | 세대당 인구 평균 이상 지역 및 countplot/barplot | ✅ 완료 |
+- `01_news_scraping.ipynb` - 뉴스 스크래핑 실습
+- `04_pop_analysis.ipynb` - 인구 데이터 분석 실습
 
-## 참고사항
+## java-framework
 
-- 뉴스 스크래핑 대상 사이트(Daum, Nate)는 마크업 구조가 수시로 바뀔 수 있어, 실행 시점에 따라 결과가 달라지거나 셀렉터를 다시 확인해야 할 수 있습니다.
-- 2-2 웹툰 다운로드 결과 이미지는 `img/` 폴더에 저장됩니다.
+Spring Framework 핵심 개념 실습
+
+- [`spring_di_assignment/`](./java-framework/spring_di_assignment) - Spring DI(Dependency Injection) 전략 3가지 비교 실습
+  - 실습1: XML 기반 설정 (Setter / Constructor Injection)
+  - 실습2: 어노테이션 + XML 혼합 설정 (`@Component`, `@Autowired`, `component-scan`)
+  - 실습3: Java Config 방식 (`@Configuration`, `@Bean`)
