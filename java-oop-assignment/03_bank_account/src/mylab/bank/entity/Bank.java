@@ -20,20 +20,20 @@ public class Bank {
         return accounts;
     }
 
-    public SavingsAccount createSavingsAccount(String ownerName, double balance, double interestRate) {
+    public String createSavingsAccount(String ownerName, double balance, double interestRate) {
         String accountNumber = "AC" + nextAccountNumber++;
         SavingsAccount account = new SavingsAccount(accountNumber, ownerName, balance, interestRate);
         accounts.add(account);
         System.out.println("저축 계좌가 생성되었습니다: " + account);
-        return account;
+        return accountNumber;
     }
 
-    public CheckingAccount createCheckingAccount(String ownerName, double balance, double withdrawalLimit) {
+    public String createCheckingAccount(String ownerName, double balance, double withdrawalLimit) {
         String accountNumber = "AC" + nextAccountNumber++;
         CheckingAccount account = new CheckingAccount(accountNumber, ownerName, balance, withdrawalLimit);
         accounts.add(account);
         System.out.println("체킹 계좌가 생성되었습니다: " + account);
-        return account;
+        return accountNumber;
     }
 
     public Account findAccount(String accountNumber) throws AccountNotFoundException {
@@ -64,14 +64,7 @@ public class Bank {
         System.out.println(amount + "원이 " + fromAccountNumber + "에서 " + toAccountNumber + "로 송금되었습니다.");
     }
 
-    public void applyInterest(String accountNumber) throws AccountNotFoundException {
-        Account account = findAccount(accountNumber);
-        if (account instanceof SavingsAccount) {
-            ((SavingsAccount) account).applyInterest();
-        }
-    }
-
-    public void displayAllAccounts() {
+    public void printAllAccounts() {
         System.out.println("===== 모든 계좌 목록 =====");
         for (Account account : accounts) {
             System.out.println(account);

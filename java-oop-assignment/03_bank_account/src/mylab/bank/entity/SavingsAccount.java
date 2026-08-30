@@ -18,13 +18,13 @@ public class SavingsAccount extends Account {
     }
 
     public void applyInterest() {
-        double interest = getBalance() * (interestRate / 100);
+        double interest = getBalance() * interestRate;
         deposit(interest);
         System.out.println("이자 " + interest + "원이 적용되었습니다. 현재 잔액: " + getBalance() + "원");
     }
 
     @Override
     public String toString() {
-        return super.toString() + ", 이자율: " + interestRate + "%";
+        return super.toString() + ", 이자율: " + (interestRate * 100) + "%";
     }
 }
