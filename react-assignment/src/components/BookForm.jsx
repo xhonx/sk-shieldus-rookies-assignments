@@ -16,11 +16,13 @@
    위에서 아래로 한 번에 읽히는 것이 지금은 더 중요하기 때문입니다.
    --------------------------------------------------------- */
 
+import MessageBox from "./MessageBox.jsx";
+
 /* 부모(App)가 넘겨주는 값들 */
 function BookForm({
     form,          // 화면에 보일 입력값 11개
     isEditing,     // 수정 모드인가
-    message,       // 폼 아래 보여 줄 메시지
+    message,       // 폼 아래 보여 줄 메시지 — MessageBox 에 그대로 넘긴다
     onChange,      // 입력칸이 바뀔 때 부를 함수
     onSubmit,      // 제출할 때 부를 함수
     onCancel,      // 취소를 누를 때 부를 함수
@@ -182,8 +184,8 @@ function BookForm({
                         </button>
                     )}
 
-                    {/* 메시지 자리. 과제 7 에서 MessageBox 컴포넌트로 바꾼다. */}
-                    {message && <span className="error-message">{message.text}</span>}
+                    {/* 메시지가 없으면 MessageBox 가 null 을 돌려주어 아무것도 그려지지 않는다. */}
+                    <MessageBox message={message} />
                 </div>
             </form>
         </div>

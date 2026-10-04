@@ -18,6 +18,9 @@ import { EMPTY_FORM } from "./lib/bookData.js";
 import BookForm from "./components/BookForm.jsx";
 import BookTable from "./components/BookTable.jsx";
 
+// 성공 메시지가 저절로 사라지기까지의 시간(ms) — book_ecma 와 같다.
+const MESSAGE_TIMEOUT = 3000;
+
 // 컴포넌트 이름은 대문자로 시작한다. 소문자로 쓰면 React 가 HTML 태그로 본다.
 function App() {
     /* 화면을 이루는 값 일곱 개
@@ -68,6 +71,27 @@ function App() {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- 처음 한 번 목록을 불러오는 것은 의도된 동작입니다
         loadBooks();
     }, []);
+
+    /* 성공 메시지는 3초 뒤에 저절로 사라진다.
+       book_ecma 에서 messageTimer 변수를 두고 clearTimeout 을 부르던 일을
+       useEffect 가 대신한다. return 으로 돌려준 함수를 정리 함수라고 하는데,
+       message 가 바뀌기 직전에 React 가 이것을 먼저 불러 준다.
+       그래서 이전 예약이 새 메시지를 지워 버리는 일이 없다. */
+    useEffect(() => {
+        if (!message) {
+            return;
+        }
+
+        // 오류 메시지는 사용자가 고칠 때까지 남겨 둔다.
+        if (message.type !== "success") {
+            return;
+        }
+
+        const timer = setTimeout(() => setMessage(null), MESSAGE_TIMEOUT);
+
+        // 정리 함수 — 다음 번 실행 직전과 화면에서 사라질 때 불린다.
+        return () => clearTimeout(timer);
+    }, [message]);
 
     /* 입력칸 한 개가 바뀔 때
        입력칸 11개가 모두 이 함수 하나를 부른다.
