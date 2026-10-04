@@ -44,3 +44,21 @@ Spring Boot 서버가 `http://localhost:8080` 에서 실행 중이어야 합니�
 | 11 | App.jsx 로 조립하기 | 컴포넌트 구성 |
 | 12 | 빌드와 배포 | npm run build |
 | 13 | 리팩토링 — 반복되는 입력칸을 공통 컴포넌트로 | 컴포넌트 재사용, props |
+
+## 빌드 결과 (과제 12)
+
+`npm run build` 로 만든 결과물을 book_ecma 와 견주어 본 값입니다.
+
+| 항목 | book_ecma | book_react_first |
+| --- | --- | --- |
+| js 크기 | 6.47 kB (gzip 2.86 kB) | 229.90 kB (gzip 71.66 kB, React 포함) |
+| css 크기 | 2.51 kB | 2.86 kB |
+| index.html | 3.68 kB (화면 전체) | 0.47 kB (빈 상자 하나) |
+| 읽는 .env | `.env.production` | `.env.production` (같음) |
+| 모듈 수 | 12개 | 24개 (React 라이브러리 포함) |
+
+- `npm run preview` 로 열면 제목 옆 배지가 빨간 **PROD** 로 바뀝니다.
+- `dist/assets` 의 js 파일 안에 `.env.production` 의 주소(`https://api.myservice.com`)가 그대로 들어 있습니다.
+  숨겨야 하는 값에는 `VITE_` 를 붙이면 안 됩니다.
+- 개발 모드에서는 StrictMode 때문에 목록 요청이 두 번 나가고, 빌드 결과에서는 한 번 나갑니다.
+- `.env.production` 의 `VITE_API_BASE_URL` 은 예시 주소이므로, 실제 서버 주소로 바꾼 뒤 빌드해야 목록이 조회됩니다.
