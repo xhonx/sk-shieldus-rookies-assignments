@@ -8,7 +8,7 @@ SK쉴더스 루키즈 교육과정에서 진행한 과제들을 주제별로 정
 | ------------------------------------------------- | ----------------------------------- |
 | [`python-data-analysis/`](./python-data-analysis) | 데이터 분석을 위한 Python 학습 과제 |
 | [`java-framework/`](./java-framework)             | Spring Framework 학습 과제          |
-| [`spring-boot/`](./spring-boot)                   | Spring Boot 제출 연습문제 (Book)    |
+| [`spring-boot-assignment/`](./spring-boot-assignment)                   | Spring Boot 제출 연습문제 (Book)    |
 
 ---
 
@@ -28,10 +28,10 @@ Spring Framework 핵심 개념 실습
   - 실습2: 어노테이션 + XML 혼합 설정 (`@Component`, `@Autowired`, `component-scan`)
   - 실습3: Java Config 방식 (`@Configuration`, `@Bean`)
 
-## spring-boot
+## spring-boot-assignment
 
 Spring Boot 제출 연습문제 (도서 관리 시스템) - 제출 단계별로 브랜치를 나누어 진행
 
-- [`spring-boot/`](./spring-boot) - Spring Boot 4.0.8 / Java 17 / Maven 프로젝트 (`com.rookies6.myspringbootlab`)
+- [`spring-boot-assignment/`](./spring-boot-assignment) - Spring Boot 4.0.8 / Java 17 / Maven 프로젝트 (`com.rookies6.myspringbootlab`)
   - 제출2-0 (`main` 브랜치): Spring Boot 프로젝트 생성, 배너 변경, 환경변수 / 프로파일 설정
   - 제출2-1 (`lab_2-1` 브랜치): Book Entity + BookRepository + BookRepositoryTest 작성
