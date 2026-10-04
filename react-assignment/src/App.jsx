@@ -37,7 +37,11 @@ import { validateBook } from "./lib/validation.js";
 import { EMPTY_FORM, toRequest, toFormValues } from "./lib/bookData.js";
 
 // 화면 조각
-import BookForm from "./components/BookForm.jsx";
+// 폼은 두 파일 중 하나만 쓴다. 가져오는 줄만 바꾸면 둘을 오갈 수 있다.
+//   BookForm.jsx       입력칸 11개를 펼쳐 적은 것
+//   BookFormField.jsx  반복되는 입력칸을 Field 로 묶은 것 (과제 13 리팩토링)
+// import BookForm from "./components/BookForm.jsx";
+import BookForm from "./components/BookFormField.jsx";
 import BookTable from "./components/BookTable.jsx";
 import BookDetail from "./components/BookDetail.jsx";
 

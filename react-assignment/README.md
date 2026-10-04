@@ -62,3 +62,12 @@ Spring Boot 서버가 `http://localhost:8080` 에서 실행 중이어야 합니�
   숨겨야 하는 값에는 `VITE_` 를 붙이면 안 됩니다.
 - 개발 모드에서는 StrictMode 때문에 목록 요청이 두 번 나가고, 빌드 결과에서는 한 번 나갑니다.
 - `.env.production` 의 `VITE_API_BASE_URL` 은 예시 주소이므로, 실제 서버 주소로 바꾼 뒤 빌드해야 목록이 조회됩니다.
+
+## 리팩토링 (과제 13)
+
+`components/BookFormField.jsx` 는 `BookForm.jsx` 의 반복되는 입력칸을 `Field` 컴포넌트 하나로 묶은 것입니다.
+화면과 동작은 그대로이고, `App.jsx` 에서 가져오는 줄 하나만 바꾸면 두 파일을 오갈 수 있습니다.
+
+- **설명(textarea)은 묶지 않고 그대로 두었습니다.** 태그가 다르고 그리드 바깥에 하나뿐이라,
+  `Field` 에 조건을 하나 더 넣는 것보다 한 번 펼쳐 적는 편이 `Field` 를 단순하게 유지하기 때문입니다.
+- `BookForm.jsx` 196줄 → `BookFormField.jsx` 123줄 (빌드한 js 도 229.90 kB → 228.99 kB 로 조금 줄었습니다)
