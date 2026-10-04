@@ -37,6 +37,55 @@ SK쉴더스 루키즈 6기 Spring Boot 제출 연습문제 프로젝트입니다
 | 1-8 | `MyPropRunner` 의 출력을 `logger.debug()` / `logger.info()` 로 변경 | `runner/MyPropRunner.java` |
 | 1-9 | jar 파일로 생성하여 실행 | 아래 실행 방법 참고 |
 
+## [제출2-1] Book Entity + Repository + Test케이스 작성
+
+도서 관리 시스템 구현하기 (`lab_2-1` 브랜치)
+
+| 구분 | 내용 | 구현 위치 |
+| --- | --- | --- |
+| Entity | `Book` : id(Long, PK), title(String), author(String), isbn(String, Unique), publishDate(LocalDate), price(Integer) / `@Table(name = "books")` | `entity/Book.java` |
+| Repository | `BookRepository` : `findByIsbn(String isbn)`, `findByAuthor(String author)` | `repository/BookRepository.java` |
+| Test | `BookRepositoryTest` (`@DataJpaTest`) | `src/test/.../repository/BookRepositoryTest.java` |
+
+**테스트 케이스**
+
+| 메서드 | 내용 |
+| --- | --- |
+| `testCreateBook()` | 도서 등록 테스트 |
+| `testFindByIsbn()` | ISBN으로 도서 조회 테스트 |
+| `testFindByAuthor()` | 저자명으로 도서 목록 조회 테스트 |
+| `testUpdateBook()` | 도서 정보 수정 테스트 |
+| `testDeleteBook()` | 도서 삭제 테스트 |
+
+**테스트 데이터**
+
+| title | author |
+| --- | --- |
+| 스프링 부트 입문 | 홍길동 |
+| JPA 프로그래밍 | 박둘리 |
+
+**DB 설정**
+
+| 프로파일 | DB | 설정 파일 |
+| --- | --- | --- |
+| `prod` (기본) | MariaDB `lab_db` (lab 계정) | `application-prod.properties` |
+| `test` | H2 (in-memory) | `application-test.properties` |
+
+MariaDB lab 계정 생성
+
+```sql
+create database lab_db;
+CREATE USER 'lab'@'%' IDENTIFIED BY 'lab';
+GRANT ALL PRIVILEGES ON lab_db.* TO 'lab'@'%';
+flush privileges;
+```
+
+테스트 실행
+
+```bash
+./mvnw test -Dtest=BookRepositoryTest
+```
+
 ## 실행 방법
 
 jar 파일 생성
