@@ -9,6 +9,7 @@ SK쉴더스 루키즈 교육과정에서 진행한 과제들을 주제별로 정
 | [`python-data-analysis/`](./python-data-analysis) | 데이터 분석을 위한 Python 학습 과제 |
 | [`java-framework/`](./java-framework)             | Spring Framework 학습 과제          |
 | [`spring-boot-assignment/`](./spring-boot-assignment)                   | Spring Boot 제출 연습문제 (Book)    |
+| [`react-assignment/`](./react-assignment)         | React 도서 관리 시스템 과제         |
 
 ---
 
@@ -35,3 +36,9 @@ Spring Boot 제출 연습문제 (도서 관리 시스템) - 제출 단계별로 
 - [`spring-boot-assignment/`](./spring-boot-assignment) - Spring Boot 4.0.8 / Java 17 / Maven 프로젝트 (`com.rookies6.myspringbootlab`)
   - 제출2-0 (`main` 브랜치): Spring Boot 프로젝트 생성, 배너 변경, 환경변수 / 프로파일 설정
   - 제출2-1 (`lab_2-1` 브랜치): Book Entity + BookRepository + BookRepositoryTest 작성
+
+## react-assignment
+
+ECMAScript 로 작성된 도서 관리 시스템(book_ecma)을 React 로 다시 만드는 과제 (React + Vite 단계별 실습)
+
+- [`react-assignment/`](./react-assignment) - React 19 / Vite 프로젝트 (`book_react_first`)
