@@ -6,16 +6,22 @@
 // 이 줄이 없으면 스타일이 하나도 먹지 않는다.
 import "./style.css";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // 서버와 대화하는 함수 — book_ecma 의 파일을 그대로 쓴다.
-import { fetchBooks, createBook, updateBook } from "./api/bookApi.js";
+import {
+    fetchBooks,
+    fetchBook,
+    createBook,
+    updateBook,
+    deleteBook,
+} from "./api/bookApi.js";
 
 // 입력값 검사 — 이것도 book_ecma 의 파일 그대로다.
 import { validateBook } from "./lib/validation.js";
 
 // 폼 값과 서버 데이터 사이의 변환
-import { EMPTY_FORM, toRequest } from "./lib/bookData.js";
+import { EMPTY_FORM, toRequest, toFormValues } from "./lib/bookData.js";
 
 // 화면 조각
 import BookForm from "./components/BookForm.jsx";
@@ -37,6 +43,11 @@ function App() {
     const [listError, setListError] = useState(null);    // 표 자리에 낼 오류 문구
     const [message, setMessage] = useState(null);        // 폼 아래 메시지 — { text, type } 또는 null
     const [detailBook, setDetailBook] = useState(null);  // 상세 보기로 고른 도서. null 이면 안 그린다
+
+    /* useRef 는 화면에 그려진 실제 요소를 붙잡아 두는 자리다.
+       state 와 달리 값이 바뀌어도 화면을 다시 그리지 않는다.
+       수정 버튼을 눌렀을 때 폼으로 스크롤하는 데만 쓴다. */
+    const formRef = useRef(null);
 
     // 수정 모드인지는 editingId 로 알 수 있으므로 따로 state 를 두지 않는다.
     const isEditing = editingId !== null;
@@ -152,14 +163,57 @@ function App() {
         }
     }
 
-    /* 표의 버튼이 눌렸을 때 부를 함수들.
-       속은 과제 9 · 10 에서 채운다. 지금은 표를 먼저 확인하기 위해 비워 둔다.
-       쓰지 않을 매개변수는 적지 않는다. BookTable 이 onEdit(book.id) 로 불러도
-       받지 않은 인자는 자바스크립트가 그냥 버린다. */
-    function handleEdit() {}
+    /* 수정할 도서를 불러와 폼에 채운다 — book_ecma 의 startEdit()
+       tbody 에 걸던 이벤트 위임은 통째로 사라졌다.
+       BookTable 의 버튼이 onEdit(book.id) 로 직접 알려 주기 때문이다.
+       id 도 props 로 숫자 그대로 오므로 Number() 로 바꿀 필요가 없다. */
+    async function handleEdit(bookId) {
+        setMessage(null);
 
-    function handleDelete() {}
+        try {
+            const book = await fetchBook(bookId);
 
+            // book_ecma 에서는 fillForm 이 input.value 에 하나씩 넣었다.
+            // 여기서는 state 만 바꾸면 입력칸이 따라서 바뀐다.
+            setForm(toFormValues(book));
+            setEditingId(bookId);         // 이제 제출하면 등록이 아니라 수정이 된다
+
+            // formRef.current 는 화면에 그려진 form-container 요소다.
+            // 아직 안 그려졌을 수도 있으므로 먼저 확인한다.
+            if (formRef.current) {
+                formRef.current.scrollIntoView({ behavior: "smooth" });
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setMessage({ text: error.message, type: "error" });
+        }
+    }
+
+    // 확인을 받은 뒤 도서를 삭제한다 — book_ecma 의 removeBook()
+    async function handleDelete(bookId) {
+        // 되돌릴 수 없는 일을 하기 전에 잠시 멈춰 세우는 confirm 은 그대로 둔다.
+        if (!confirm("정말로 이 도서를 삭제하시겠습니까?")) {
+            return;
+        }
+
+        try {
+            await deleteBook(bookId);
+            setMessage({ text: "도서가 성공적으로 삭제되었습니다.", type: "success" });
+
+            // 수정 중이던 도서를 삭제했다면 폼도 등록 모드로 되돌린다.
+            // 이걸 빠뜨리면 없는 도서를 수정하려다 404 가 난다.
+            if (editingId === bookId) {
+                resetForm();
+            }
+
+            await loadBooks();
+        } catch (error) {
+            console.error("Error:", error);
+            setMessage({ text: error.message, type: "error" });
+        }
+    }
+
+    // 상세 보기는 과제 10 에서 채운다.
     function handleDetail() {}
 
     // 태그 여러 개를 나란히 돌려줄 수 없으므로 프래그먼트(<> </>)로 감싼다.
@@ -174,6 +228,7 @@ function App() {
                 onChange={handleChange}
                 onSubmit={handleSubmit}
                 onCancel={resetForm}
+                containerRef={formRef}
             />
 
             <BookTable

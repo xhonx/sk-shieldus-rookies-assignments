@@ -5,7 +5,7 @@
      createElement / appendChild   →  JSX 로 태그를 그대로 적는다
      tbody.innerHTML = ""          →  books 가 바뀌면 React 가 다시 그린다
      addCell / createActionButton  →  필요 없다
-     data-action + 이벤트 위임     →  onClick 에 함수를 직접 넘긴다
+     버튼에 심던 동작 표시와 위임  →  onClick 에 함수를 직접 넘긴다
 
    이 컴포넌트는 표를 그리기만 한다. 서버를 부르지도 않고
    값을 저장하지도 않는다. 버튼이 눌리면 부모에게 알릴 뿐이다.

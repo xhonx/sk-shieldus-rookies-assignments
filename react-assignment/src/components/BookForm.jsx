@@ -26,6 +26,7 @@ function BookForm({
     onChange,      // 입력칸이 바뀔 때 부를 함수
     onSubmit,      // 제출할 때 부를 함수
     onCancel,      // 취소를 누를 때 부를 함수
+    containerRef,  // 수정할 때 이 위치로 스크롤하기 위한 참조
 }) {
     // book_ecma 의 setEditMode 가 classList.toggle 로 하던 일을 문자열로 표현한다.
     // 이 클래스는 style.css 에서 폼 왼쪽에 녹색 띠를 그린다.
@@ -35,7 +36,7 @@ function BookForm({
     }
 
     return (
-        <div className={containerClass}>
+        <div className={containerClass} ref={containerRef}>
             <h2>도서 등록</h2>
 
             <form onSubmit={onSubmit}>
