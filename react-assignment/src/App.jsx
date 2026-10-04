@@ -6,7 +6,10 @@
 // 이 줄이 없으면 스타일이 하나도 먹지 않는다.
 import "./style.css";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+// 서버와 대화하는 함수 — book_ecma 의 파일을 그대로 쓴다.
+import { fetchBooks } from "./api/bookApi.js";
 
 // 컴포넌트 이름은 대문자로 시작한다. 소문자로 쓰면 React 가 HTML 태그로 본다.
 function App() {
@@ -21,6 +24,41 @@ function App() {
     const [listError, setListError] = useState(null);    // 표 자리에 낼 오류 문구
     const [message, setMessage] = useState(null);        // 폼 아래 메시지 — { text, type } 또는 null
     const [detailBook, setDetailBook] = useState(null);  // 상세 보기로 고른 도서. null 이면 안 그린다
+
+    /* 목록 불러오기 — book_ecma main.js 의 loadBooks 를 옮겼다.
+       여기의 setLoading 은 ui/message.js 의 함수가 아니라
+       useState 가 돌려준 state 변경 함수다. */
+    async function loadBooks() {
+        setLoading(true);
+        setListError(null);
+
+        try {
+            const data = await fetchBooks();
+            console.log(data);
+
+            // book_ecma 에서는 renderBookTable(books) 를 불렀다.
+            // 여기서는 값만 바꾸면 React 가 화면을 다시 그린다.
+            setBooks(data);
+        } catch (error) {
+            console.error("Error:", error);
+            setMessage({ text: error.message, type: "error" });
+            // renderTableError() 대신 오류 문구를 state 에 담는다.
+            setListError("오류: 데이터를 불러올 수 없습니다.");
+        } finally {
+            // 성공하든 실패하든 로딩 표시는 반드시 끈다.
+            setLoading(false);
+        }
+    }
+
+    /* 처음 한 번만 목록을 불러온다.
+       book_ecma 의 main.js 맨 아래에 적었던 loadBooks() 한 줄에 해당한다.
+       두 번째 인자 [] 가 "처음 한 번만" 이라는 뜻이다.
+       빠뜨리면 화면을 그릴 때마다 실행되어 서버 요청이 끝없이 반복된다. */
+    useEffect(() => {
+        // 아래 주석은 ESLint 에게 "이 경고는 알고 있다" 고 알려 주는 줄이다.
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- 처음 한 번 목록을 불러오는 것은 의도된 동작입니다
+        loadBooks();
+    }, []);
 
     return <h1>도서 관리 시스템</h1>;
 }
