@@ -11,7 +11,11 @@ import { useEffect, useState } from "react";
 // 서버와 대화하는 함수 — book_ecma 의 파일을 그대로 쓴다.
 import { fetchBooks } from "./api/bookApi.js";
 
+// 폼 값과 서버 데이터 사이의 변환
+import { EMPTY_FORM } from "./lib/bookData.js";
+
 // 화면 조각
+import BookForm from "./components/BookForm.jsx";
 import BookTable from "./components/BookTable.jsx";
 
 // 컴포넌트 이름은 대문자로 시작한다. 소문자로 쓰면 React 가 HTML 태그로 본다.
@@ -21,12 +25,15 @@ function App() {
        바꾸는 함수를 부르면 React 가 컴포넌트를 다시 실행해 화면을 새로 그린다.
        book_ecma 에서 DOM 에 흩어져 있던 상태가 여기 모였다. */
     const [books, setBooks] = useState([]);              // 표에 그릴 도서 목록
-    const [form, setForm] = useState({});                // 입력칸 11개의 값 (과제 6 에서 EMPTY_FORM 으로 바꾼다)
+    const [form, setForm] = useState(EMPTY_FORM);        // 입력칸 11개의 값
     const [editingId, setEditingId] = useState(null);    // null 이면 등록 모드, 값이 있으면 수정 모드
     const [loading, setLoading] = useState(false);       // "로딩 중..." 을 보일까
     const [listError, setListError] = useState(null);    // 표 자리에 낼 오류 문구
     const [message, setMessage] = useState(null);        // 폼 아래 메시지 — { text, type } 또는 null
     const [detailBook, setDetailBook] = useState(null);  // 상세 보기로 고른 도서. null 이면 안 그린다
+
+    // 수정 모드인지는 editingId 로 알 수 있으므로 따로 state 를 두지 않는다.
+    const isEditing = editingId !== null;
 
     /* 목록 불러오기 — book_ecma main.js 의 loadBooks 를 옮겼다.
        여기의 setLoading 은 ui/message.js 의 함수가 아니라
@@ -62,6 +69,28 @@ function App() {
         loadBooks();
     }, []);
 
+    /* 입력칸 한 개가 바뀔 때
+       입력칸 11개가 모두 이 함수 하나를 부른다.
+       어느 칸인지는 event.target.name 이 알려 준다.
+
+       state 는 직접 고치지 않는다. form.title = ... 처럼 고치면
+       React 는 "같은 객체" 로 보아 화면을 다시 그리지 않는다.
+       전개 구문(...form)으로 기존 값을 복사한 새 객체를 만들고,
+       [name] (계산된 속성명)으로 바뀐 칸 하나만 덮어쓴다. */
+    function handleChange(event) {
+        const { name, value } = event.target;
+
+        setForm({ ...form, [name]: value });
+    }
+
+    // 폼 제출과 취소는 과제 8 에서 채운다.
+    // 지금은 제출할 때 페이지가 새로고침되는 것만 막아 둔다.
+    function handleSubmit(event) {
+        event.preventDefault();
+    }
+
+    function resetForm() {}
+
     /* 표의 버튼이 눌렸을 때 부를 함수들.
        속은 과제 9 · 10 에서 채운다. 지금은 표를 먼저 확인하기 위해 비워 둔다.
        쓰지 않을 매개변수는 적지 않는다. BookTable 이 onEdit(book.id) 로 불러도
@@ -76,6 +105,15 @@ function App() {
     return (
         <>
             <h1>도서 관리 시스템</h1>
+
+            <BookForm
+                form={form}
+                isEditing={isEditing}
+                message={message}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                onCancel={resetForm}
+            />
 
             <BookTable
                 books={books}
