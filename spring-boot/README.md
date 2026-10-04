@@ -23,6 +23,7 @@ SK쉴더스 루키즈 6기 Spring Boot 제출 연습문제 프로젝트입니다
 | 제출2-1 | Entity + Repository + Test케이스 작성 | `lab_2-1` |
 | 제출2-2 | Entity + Repository + RestController 작성 | `lab_2-2` |
 | 제출2-3 | RestController + Service + Entity와 Repository + `@Valid` + DTO | `lab_2-3` |
+| 제출2-4 | 1:1 연관관계 Entity (Book - BookDetail) | `lab_2-4` |
 
 ## [제출2-0] Spring Boot 프로젝트 작성하기
 
@@ -198,6 +199,80 @@ flush privileges;
   "timestamp": "2026-10-04 22:04:38 일 오후"
 }
 ```
+
+## [제출2-4] Book 과 BookDetail ( 1:1 관계 )
+
+도서 관리 시스템 구현하기 - 1:1 연관관계 (`lab_2-4` 브랜치)
+
+**엔티티**
+
+| 클래스 | 테이블 | 내용 |
+| --- | --- | --- |
+| `Book` | `books` | 책의 기본 정보 (제목, 저자, ISBN, 가격, 출판일) / `@OneToOne(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)` 로 `BookDetail` 과 연결 (관계의 주인이 아님) |
+| `BookDetail` | `book_details` | 책의 상세 정보 (설명, 언어, 페이지 수, 출판사, 표지 이미지 URL, 에디션) / `@OneToOne(fetch = FetchType.LAZY)`, `@JoinColumn(name = "book_id", unique = true)` (관계의 주인, 외래 키 소유) |
+
+- **1:1 관계** : 각 책은 하나의 상세 정보만 가질 수 있습니다.
+- **지연 로딩** : `FetchType.LAZY` 를 사용하여 필요할 때만 연관된 데이터를 로드합니다.
+- **영속성 전이** : `CascadeType.ALL` 을 사용하여 `Book` 을 저장/삭제할 때 `BookDetail` 도 함께 처리됩니다.
+
+**레포지토리**
+
+| 인터페이스 | 메서드 |
+| --- | --- |
+| `BookRepository` | `findByIsbn`, `findByAuthorContainingIgnoreCase`, `findByTitleContainingIgnoreCase`, `findByIdWithBookDetail`, `findByIsbnWithBookDetail`, `existsByIsbn` |
+| `BookDetailRepository` | `findByBookId`, `findByIdWithBook`, `findByPublisher` |
+
+**DTO** (`BookDTO`)
+
+| 클래스 | 내용 |
+| --- | --- |
+| `Request` | 책 생성/수정 시 사용하는 DTO (ISBN 패턴 검사, 가격 음수 방지, 출간일 과거 날짜 제한) |
+| `BookDetailDTO` | 책 상세 정보 요청용 중첩 DTO |
+| `Response` | API 응답용 DTO |
+| `BookDetailResponse` | 책 상세 정보 응답용 중첩 DTO |
+
+**API** (`BookController` -> `BookService`)
+
+| Method | URL | 내용 | 응답 |
+| --- | --- | --- | --- |
+| GET | `/api/books` | 모든 책 조회 | 200 OK |
+| GET | `/api/books/{id}` | ID로 책 조회 | 200 OK / 404 Not Found |
+| GET | `/api/books/isbn/{isbn}` | ISBN으로 책 조회 | 200 OK / 404 Not Found |
+| GET | `/api/books/search/author?author={author}` | 저자로 책 검색 | 200 OK |
+| GET | `/api/books/search/title?title={title}` | 제목으로 책 검색 | 200 OK |
+| POST | `/api/books` | 책 생성 | 201 Created / 400 검증 오류 / 409 ISBN 중복 |
+| PUT | `/api/books/{id}` | 책 수정 (전체수정) | 200 OK / 400 검증 오류 / 404 Not Found / 409 ISBN 중복 |
+| DELETE | `/api/books/{id}` | 책 삭제 | 204 No Content / 404 Not Found |
+
+**등록 (POST) Request Body**
+
+```json
+{
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "isbn": "9780132350884",
+  "price": 45,
+  "publishDate": "2008-08-01",
+  "detailRequest": {
+    "description": "A handbook of agile software craftsmanship",
+    "language": "English",
+    "pageCount": 464,
+    "publisher": "Prentice Hall",
+    "coverImageUrl": "https://example.com/cleancode.jpg",
+    "edition": "1st"
+  }
+}
+```
+
+**레포지토리 테스트** (`BookRepositoryTest`)
+
+| 메서드 | 내용 |
+| --- | --- |
+| `createBookWithBookDetail()` | 책과 책 상세 정보 생성 |
+| `findBookByIsbn()` | ISBN으로 책 조회 |
+| `findByIdWithBookDetail()` | 책과 책 상세 정보를 함께 조회 |
+| `findBooksByAuthor()` | 저자로 책 검색 |
+| `findBookDetailByBookId()` | 책 ID로 상세 정보 조회 |
 
 ## 실행 방법
 
