@@ -22,6 +22,7 @@ SK쉴더스 루키즈 6기 Spring Boot 제출 연습문제 프로젝트입니다
 | 제출2-0 | Spring Boot Project 생성 | `main` |
 | 제출2-1 | Entity + Repository + Test케이스 작성 | `lab_2-1` |
 | 제출2-2 | Entity + Repository + RestController 작성 | `lab_2-2` |
+| 제출2-3 | RestController + Service + Entity와 Repository + `@Valid` + DTO | `lab_2-3` |
 
 ## [제출2-0] Spring Boot 프로젝트 작성하기
 
@@ -132,6 +133,69 @@ flush privileges;
   "isbn": "9788956746432",
   "price": 35000,
   "publishDate": "2025-04-30"
+}
+```
+
+## [제출2-3] RestController + Service + Entity + Repository
+
+도서 관리 시스템 구현하기 - Service와 DTO 추가하기 (`lab_2-3` 브랜치)
+
+**계층 구조**
+
+| 계층 | 클래스 | 내용 |
+| --- | --- | --- |
+| Repository | `Book`, `BookRepository` | JPA 엔티티와 데이터 액세스 (ISBN, 저자로 검색) |
+| DTO | `BookDTO` (`controller/dto`) | 내부 클래스 `BookCreateRequest`, `BookUpdateRequest`, `BookResponse` / 검증 애노테이션 포함 |
+| Service | `BookService` | 비즈니스 로직 담당, `@Transactional` 로 트랜잭션 관리, Entity <=> DTO 변환 (Stream API) |
+| Controller | `BookController` | 서비스 계층에 비즈니스 로직을 위임, `@Valid` 로 요청 본문 검증 |
+| 예외 처리 | `BusinessException`, `DefaultExceptionAdvice` | 비즈니스 예외와 검증 예외를 구분하여 일관된 형식으로 응답 |
+
+**API**
+
+| Method | URL | 내용 | 응답 |
+| --- | --- | --- | --- |
+| POST | `/api/books` | 새 도서 등록 (`BookCreateRequest`) | 201 Created / 400 검증 오류 / 409 ISBN 중복 |
+| GET | `/api/books` | 모든 도서 조회 | 200 OK |
+| GET | `/api/books/{id}` | ID로 특정 도서 조회 | 200 OK / 404 Not Found |
+| GET | `/api/books/isbn/{isbn}/` | ISBN으로 도서 조회 | 200 OK / 404 Not Found |
+| GET | `/api/books/author/{author}` | 저자명으로 도서 목록 조회 | 200 OK |
+| PUT | `/api/books/{id}` | 도서 정보 수정 (`BookUpdateRequest`) | 200 OK / 400 검증 오류 / 404 Not Found |
+| DELETE | `/api/books/{id}` | 도서 삭제 | 204 No Content / 404 Not Found |
+
+**수정 (Update)**
+
+- 저자(author), 가격(price), 제목(title), 출판일자(publishDate) 를 수정합니다.
+- `BookService` 의 `updateBook()` 메서드에서 입력값이 있는 경우에만 값을 변경합니다.
+
+```json
+{
+  "price": 32000
+}
+```
+
+**유효성 검증 오류 응답 (400)**
+
+```json
+{
+  "status": 400,
+  "message": "입력항목 검증 오류",
+  "timestamp": "2026-10-04T22:04:38.1958286",
+  "errors": {
+    "title": "제목은 필수 입력항목입니다.",
+    "isbn": "ISBN은 필수 입력항목입니다.",
+    "price": "가격은 0보다 커야 합니다.",
+    "publishDate": "출판일자는 필수 입력항목입니다."
+  }
+}
+```
+
+**비즈니스 예외 응답 (404 / 409)**
+
+```json
+{
+  "message": "Book with this ISBN already Exist",
+  "statusCode": 409,
+  "timestamp": "2026-10-04 22:04:38 일 오후"
 }
 ```
 
