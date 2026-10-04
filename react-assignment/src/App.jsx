@@ -1,12 +1,25 @@
 /* ---------------------------------------------------------
    App.jsx — book_ecma 의 main.js 자리
-   화면을 직접 고치는 대신, 값을 바꾸면 화면이 따라오게 한다.
+   이 앱의 유일한 컨테이너 컴포넌트입니다. 값을 갖고, 서버를 부르고,
+   자식이 알려 온 일을 처리합니다. 화면을 그리는 일은 자식에게 맡깁니다.
+
+   하는 일은 main.js 와 같습니다. 달라진 것은 "화면을 바꾸는 방법" 하나입니다.
+
+     book_ecma : renderBookTable(books)  — 내가 DOM 을 고친다
+     React     : setBooks(books)         — 값만 바꾸면 React 가 다시 그린다
+
+   그래서 이 파일에는 document 가 한 번도 나오지 않습니다.
    --------------------------------------------------------- */
+
+/* ── 1. 가져오기 ────────────────────────────────────────── */
 
 // 이 줄이 없으면 스타일이 하나도 먹지 않는다.
 import "./style.css";
 
 import { useEffect, useRef, useState } from "react";
+
+// 지금 어느 모드로 도는지 (TEST / PROD)
+import { APP_MODE } from "./config.js";
 
 // 서버와 대화하는 함수 — book_ecma 의 파일을 그대로 쓴다.
 import {
@@ -33,6 +46,8 @@ const MESSAGE_TIMEOUT = 3000;
 
 // 컴포넌트 이름은 대문자로 시작한다. 소문자로 쓰면 React 가 HTML 태그로 본다.
 function App() {
+    /* ── 2. state 일곱 개 ───────────────────────────────── */
+
     /* 화면을 이루는 값 일곱 개
        useState 는 [지금 값, 값을 바꾸는 함수] 두 개를 돌려준다.
        바꾸는 함수를 부르면 React 가 컴포넌트를 다시 실행해 화면을 새로 그린다.
@@ -45,6 +60,8 @@ function App() {
     const [message, setMessage] = useState(null);        // 폼 아래 메시지 — { text, type } 또는 null
     const [detailBook, setDetailBook] = useState(null);  // 상세 보기로 고른 도서. null 이면 안 그린다
 
+    /* ── 3. ref 하나 ────────────────────────────────────── */
+
     /* useRef 는 화면에 그려진 실제 요소를 붙잡아 두는 자리다.
        state 와 달리 값이 바뀌어도 화면을 다시 그리지 않는다.
        수정 버튼을 눌렀을 때 폼으로 스크롤하는 데만 쓴다. */
@@ -52,6 +69,8 @@ function App() {
 
     // 수정 모드인지는 editingId 로 알 수 있으므로 따로 state 를 두지 않는다.
     const isEditing = editingId !== null;
+
+    /* ── 4. 목록 불러오기 ───────────────────────────────── */
 
     /* 목록 불러오기 — book_ecma main.js 의 loadBooks 를 옮겼다.
        여기의 setLoading 은 ui/message.js 의 함수가 아니라
@@ -77,6 +96,8 @@ function App() {
         }
     }
 
+    /* ── 5. 처음 한 번 ──────────────────────────────────── */
+
     /* 처음 한 번만 목록을 불러온다.
        book_ecma 의 main.js 맨 아래에 적었던 loadBooks() 한 줄에 해당한다.
        두 번째 인자 [] 가 "처음 한 번만" 이라는 뜻이다.
@@ -86,6 +107,8 @@ function App() {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- 처음 한 번 목록을 불러오는 것은 의도된 동작입니다
         loadBooks();
     }, []);
+
+    /* ── 6. 메시지 지우기 ───────────────────────────────── */
 
     /* 성공 메시지는 3초 뒤에 저절로 사라진다.
        book_ecma 에서 messageTimer 변수를 두고 clearTimeout 을 부르던 일을
@@ -108,6 +131,8 @@ function App() {
         return () => clearTimeout(timer);
     }, [message]);
 
+    /* ── 7. 입력 처리 ───────────────────────────────────── */
+
     /* 입력칸 한 개가 바뀔 때
        입력칸 11개가 모두 이 함수 하나를 부른다.
        어느 칸인지는 event.target.name 이 알려 준다.
@@ -128,6 +153,8 @@ function App() {
         setForm(EMPTY_FORM);
         setEditingId(null);
     }
+
+    /* ── 8. 폼 제출 ─────────────────────────────────────── */
 
     /* 등록 / 수정 — 폼 제출
        book_ecma 의 submit 핸들러를 그대로 옮겼다.
@@ -163,6 +190,8 @@ function App() {
             setMessage({ text: error.message, type: "error" });   // 서버가 보낸 실제 메시지
         }
     }
+
+    /* ── 9. 표의 알림 처리 ──────────────────────────────── */
 
     /* 수정할 도서를 불러와 폼에 채운다 — book_ecma 의 startEdit()
        tbody 에 걸던 이벤트 위임은 통째로 사라졌다.
@@ -235,10 +264,23 @@ function App() {
         }
     }
 
+    /* ── 10. 배지 계산 ──────────────────────────────────── */
+
+    // 제목 옆에 붙일 배지의 class. 운영이면 빨강, 아니면 회색.
+    // "app-mode prod" 처럼 공백으로 띄어 쓰면 클래스를 둘 가진 요소가 된다.
+    let modeClass = "app-mode test";
+    if (APP_MODE === "PROD") {
+        modeClass = "app-mode prod";
+    }
+
+    /* ── 11. return ─────────────────────────────────────── */
+
     // 태그 여러 개를 나란히 돌려줄 수 없으므로 프래그먼트(<> </>)로 감싼다.
+    // on 으로 시작하는 props 는 "이런 일이 나면 불러 달라" 는 뜻이고,
+    // handle 로 시작하는 함수가 그 일을 실제로 처리한다.
     return (
         <>
-            <h1>도서 관리 시스템</h1>
+            <h1>도서 관리 시스템 <span className={modeClass}>{APP_MODE}</span></h1>
 
             <BookForm
                 form={form}
