@@ -24,6 +24,7 @@ SK쉴더스 루키즈 6기 Spring Boot 제출 연습문제 프로젝트입니다
 | 제출2-2 | Entity + Repository + RestController 작성 | `lab_2-2` |
 | 제출2-3 | RestController + Service + Entity와 Repository + `@Valid` + DTO | `lab_2-3` |
 | 제출2-4 | 1:1 연관관계 Entity (Book - BookDetail) | `lab_2-4` |
+| 제출2-5 | 1:N 연관관계 Entity (Publisher - Book) | `lab_2-5` |
 
 ## [제출2-0] Spring Boot 프로젝트 작성하기
 
@@ -310,6 +311,113 @@ BookDetail 의 설명만 수정 - `PATCH /api/books/1/detail`
   "description": "새로운 책 설명"
 }
 ```
+
+## [제출2-5] Book 과 BookDetail 과 Publisher ( 1:N 관계 )
+
+도서(Book) - 도서상세(BookDetail) - 출판사(Publisher) 관리 시스템 구현하기 (`lab_2-5` 브랜치)
+
+- **Book ↔ BookDetail** : 1:1 연관관계 (기존 유지)
+- **Publisher ↔ Book** : 1:N 연관관계 (새로 추가)
+
+**엔티티**
+
+| 클래스 | 테이블 | 내용 |
+| --- | --- | --- |
+| `Publisher` | `publishers` | id, name, establishedDate, address, books / `@OneToMany(mappedBy = "publisher", cascade = CascadeType.ALL, fetch = FetchType.LAZY)` + `@JsonIgnore`, `addBook()` / `removeBook()` |
+| `Book` | `books` | `publisher` 추가 / `@ManyToOne(fetch = FetchType.LAZY)`, `@JoinColumn(name = "publisher_id")` |
+
+**추가된 클래스**
+
+| 클래스 | 내용 |
+| --- | --- |
+| `Publisher` | 출판사 정보를 관리하는 엔티티 |
+| `PublisherRepository` | `findByName`, `findByIdWithBooks` (Fetch Join), `existsByName` |
+| `PublisherService` | 출판사 조회 / 생성 / 수정 / 삭제, 이름 중복 검증, 도서가 있는 출판사 삭제 거부 |
+| `PublisherController` | 출판사 관련 REST API 엔드포인트 |
+| `PublisherDTO` | 출판사 요청/응답 DTO (`Request`, `Response`, `SimpleResponse`) |
+| `ErrorCode` | 에러 메시지 템플릿과 HTTP 상태를 모아 둔 enum |
+| `BookDataInitRunner` | 샘플 데이터(출판사 4, 도서 8) 생성 Runner |
+
+**수정된 클래스**
+
+| 클래스 | 내용 |
+| --- | --- |
+| `Book` | Publisher 와의 `@ManyToOne` 관계 추가 |
+| `BookRepository` | `findByPublisherId`, `countByPublisherId`, `findByIdWithAllDetails` 추가 |
+| `BookService` | 출판사 존재 여부 검증 로직 추가, `getBooksByPublisherId` 추가 |
+| `BookDTO` | `Request` 에 `publisherId`, `Response` 에 `publisher` 추가, `SimpleResponse` 추가 |
+| `BusinessException` | `ErrorCode` 를 받는 생성자 추가 |
+| `BookController` | 기존 것은 `BookDetailController` (`/api/books/details`) 로 Rename 하고 새로 작성 |
+| `BookRepositoryTest` | 기존 것은 `BookDetailRepositoryTest` 로 Rename 하고 새로 작성 |
+
+**Publisher API**
+
+| Method | URL | 내용 | 응답 |
+| --- | --- | --- | --- |
+| GET | `/api/publishers` | 모든 출판사 조회 (도서 수 포함) | 200 OK |
+| GET | `/api/publishers/{id}` | 특정 출판사 조회 (도서 목록 포함) | 200 OK / 404 Not Found |
+| GET | `/api/publishers/name/{name}` | 출판사 이름으로 조회 | 200 OK / 404 Not Found |
+| GET | `/api/publishers/{id}/books` | 출판사별 도서 목록 조회 | 200 OK / 404 Not Found |
+| POST | `/api/publishers` | 새 출판사 생성 | 201 Created / 400 검증 오류 / 409 이름 중복 |
+| PUT | `/api/publishers/{id}` | 출판사 정보 수정 | 200 OK / 400 검증 오류 / 404 Not Found / 409 이름 중복 |
+| DELETE | `/api/publishers/{id}` | 출판사 삭제 | 204 No Content / 404 Not Found / 409 도서가 있는 출판사 |
+
+**Book API**
+
+| Method | URL | 내용 | 응답 |
+| --- | --- | --- | --- |
+| GET | `/api/books` | 모든 도서 조회 | 200 OK |
+| GET | `/api/books/{id}` | ID로 도서 조회 (출판사, 상세정보 포함) | 200 OK / 404 Not Found |
+| GET | `/api/books/isbn/{isbn}` | ISBN으로 도서 조회 | 200 OK / 404 Not Found |
+| GET | `/api/books/search/author?author={author}` | 작가로 도서 검색 | 200 OK |
+| GET | `/api/books/search/title?title={title}` | 제목으로 도서 검색 | 200 OK |
+| POST | `/api/books` | 새 도서 생성 (`publisherId` 필수) | 201 Created / 400 검증 오류 / 404 없는 출판사 / 409 ISBN 중복 |
+| PUT | `/api/books/{id}` | 도서 정보 수정 | 200 OK / 400 검증 오류 / 404 Not Found / 409 ISBN 중복 |
+| DELETE | `/api/books/{id}` | 도서 삭제 (BookDetail 도 함께 삭제) | 204 No Content / 404 Not Found |
+
+**새 도서 생성 Request Body**
+
+```json
+{
+  "title": "Spring Boot in Action",
+  "author": "Craig Walls",
+  "isbn": "978-1617292545",
+  "price": 45000,
+  "publishDate": "2016-01-30",
+  "publisherId": 4,
+  "detailRequest": {
+    "description": "A developer's guide to Spring Boot",
+    "language": "English",
+    "pageCount": 264,
+    "publisher": "Manning Publications",
+    "coverImageUrl": "https://example.com/spring-boot-in-action.jpg",
+    "edition": "1st Edition"
+  }
+}
+```
+
+**오류 응답**
+
+```json
+{
+  "statusCode": 409,
+  "message": "Cannot delete publisher with id: 1. It has 2 books",
+  "timestamp": "2026-10-05 00:05:36 월 오전"
+}
+```
+
+**레포지토리 테스트**
+
+| 클래스 | 내용 |
+| --- | --- |
+| `BookRepositoryTest` | ISBN / 작가 / 제목 조회, `findByIdWithAllDetails`, `findByPublisherId`, `countByPublisherId`, `existsByIsbn` (9개) |
+| `PublisherRepositoryTest` | `findByName`, `existsByName`, `findByIdWithBooks` (5개) |
+| `BookDetailRepositoryTest` | 제출2-4 의 테스트를 Rename (5개) |
+
+**쿼리 튜닝**
+
+- `application-prod.properties` 에 `spring.jpa.properties.hibernate.default_batch_fetch_size=100` 을 추가하여 지연 로딩 대상을 in 절로 묶어 조회합니다.
+- `getAllPublishers()` 는 `books` 컬렉션을 로딩하지 않고 `countByPublisherId` count 쿼리로 도서 수를 구합니다.
 
 ## 실행 방법
 

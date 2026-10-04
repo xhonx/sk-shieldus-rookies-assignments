@@ -34,4 +34,11 @@ public class Book {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private BookDetail bookDetail;
+
+    //N:1 관계 - 관계의 주인 (외래 키 publisher_id 를 소유), 지연 로딩
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publisher_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Publisher publisher;
 }

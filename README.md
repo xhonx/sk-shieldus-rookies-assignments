@@ -38,3 +38,4 @@ Spring Boot 제출 연습문제 (도서 관리 시스템) - 제출 단계별로 
   - 제출2-2 (`lab_2-2` 브랜치): BookRestController 작성 (도서 등록 / 조회 / 수정 / 삭제 REST API)
   - 제출2-3 (`lab_2-3` 브랜치): BookService + BookDTO 추가, `@Valid` 입력 검증, `@Transactional` 적용
   - 제출2-4 (`lab_2-4` 브랜치): Book - BookDetail 1:1 연관관계, 저자 / 제목 검색 API, 부분수정(PATCH) API 추가
+  - 제출2-5 (`lab_2-5` 브랜치): Publisher - Book 1:N 연관관계, 출판사 API, ErrorCode 기반 예외 처리 추가

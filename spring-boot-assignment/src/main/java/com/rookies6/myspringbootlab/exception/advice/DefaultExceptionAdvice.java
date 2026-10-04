@@ -67,7 +67,7 @@ public class DefaultExceptionAdvice {
         ValidationErrorResponse response =
                 new ValidationErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
-                        "입력항목 검증 오류",
+                        "Validation Failed",
                         LocalDateTime.now(),
                         errors
                 );

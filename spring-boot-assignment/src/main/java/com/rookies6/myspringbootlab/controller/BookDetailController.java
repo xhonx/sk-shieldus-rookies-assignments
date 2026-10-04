@@ -10,57 +10,73 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//제출2-4 까지의 BookController 를 Rename 한 것 (제출2-5)
+//새 BookController 가 /api/books 를 맡으므로 주소가 겹치지 않게 /api/books/details 로 옮겼다
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/books/details")
 @RequiredArgsConstructor
-public class BookController {
+public class BookDetailController {
     private final BookService bookService;
 
-    //모든 도서 조회
+    //모든 책 조회
     @GetMapping
     public ResponseEntity<List<BookDTO.Response>> getAllBooks() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    //ID로 도서 조회
+    //ID로 책 조회
     @GetMapping("/{id}")
     public ResponseEntity<BookDTO.Response> getBookById(@PathVariable Long id) {
         return ResponseEntity.ok(bookService.getBookById(id));
     }
 
-    //ISBN으로 도서 조회
-    @GetMapping("/isbn/{isbn}")
+    //ISBN으로 책 조회
+    @GetMapping({"/isbn/{isbn}", "/isbn/{isbn}/"})
     public ResponseEntity<BookDTO.Response> getBookByIsbn(@PathVariable String isbn) {
         return ResponseEntity.ok(bookService.getBookByIsbn(isbn));
     }
 
-    //작가로 도서 검색
+    //저자로 책 검색
     @GetMapping("/search/author")
     public ResponseEntity<List<BookDTO.Response>> getBooksByAuthor(@RequestParam String author) {
         return ResponseEntity.ok(bookService.getBooksByAuthor(author));
     }
 
-    //제목으로 도서 검색
+    //제목으로 책 검색
     @GetMapping("/search/title")
     public ResponseEntity<List<BookDTO.Response>> getBooksByTitle(@RequestParam String title) {
         return ResponseEntity.ok(bookService.getBooksByTitle(title));
     }
 
-    //새 도서 생성
+    //책 생성
     @PostMapping
     public ResponseEntity<BookDTO.Response> createBook(@Valid @RequestBody BookDTO.Request request) {
         BookDTO.Response createdBook = bookService.createBook(request);
         return new ResponseEntity<>(createdBook, HttpStatus.CREATED); //201
     }
 
-    //도서 정보 수정
+    //책 수정
     @PutMapping("/{id}")
     public ResponseEntity<BookDTO.Response> updateBook(@PathVariable Long id,
                                                        @Valid @RequestBody BookDTO.Request request) {
         return ResponseEntity.ok(bookService.updateBook(id, request));
     }
 
-    //도서 삭제
+    //Book 의 일부 필드만 수정
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookDTO.Response> patchBook(@PathVariable Long id,
+                                                      @Valid @RequestBody BookDTO.PatchRequest request) {
+        return ResponseEntity.ok(bookService.patchBook(id, request));
+    }
+
+    //BookDetail 의 일부 필드만 수정
+    @PatchMapping("/{id}/detail")
+    public ResponseEntity<BookDTO.Response> patchBookDetail(@PathVariable Long id,
+                                                            @RequestBody BookDTO.BookDetailPatchRequest request) {
+        return ResponseEntity.ok(bookService.patchBookDetail(id, request));
+    }
+
+    //책 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
