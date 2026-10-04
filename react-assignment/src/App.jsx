@@ -11,6 +11,9 @@ import { useEffect, useState } from "react";
 // 서버와 대화하는 함수 — book_ecma 의 파일을 그대로 쓴다.
 import { fetchBooks } from "./api/bookApi.js";
 
+// 화면 조각
+import BookTable from "./components/BookTable.jsx";
+
 // 컴포넌트 이름은 대문자로 시작한다. 소문자로 쓰면 React 가 HTML 태그로 본다.
 function App() {
     /* 화면을 이루는 값 일곱 개
@@ -34,7 +37,6 @@ function App() {
 
         try {
             const data = await fetchBooks();
-            console.log(data);
 
             // book_ecma 에서는 renderBookTable(books) 를 불렀다.
             // 여기서는 값만 바꾸면 React 가 화면을 다시 그린다.
@@ -60,7 +62,31 @@ function App() {
         loadBooks();
     }, []);
 
-    return <h1>도서 관리 시스템</h1>;
+    /* 표의 버튼이 눌렸을 때 부를 함수들.
+       속은 과제 9 · 10 에서 채운다. 지금은 표를 먼저 확인하기 위해 비워 둔다.
+       쓰지 않을 매개변수는 적지 않는다. BookTable 이 onEdit(book.id) 로 불러도
+       받지 않은 인자는 자바스크립트가 그냥 버린다. */
+    function handleEdit() {}
+
+    function handleDelete() {}
+
+    function handleDetail() {}
+
+    // 태그 여러 개를 나란히 돌려줄 수 없으므로 프래그먼트(<> </>)로 감싼다.
+    return (
+        <>
+            <h1>도서 관리 시스템</h1>
+
+            <BookTable
+                books={books}
+                loading={loading}
+                error={listError}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onDetail={handleDetail}
+            />
+        </>
+    );
 }
 
 // 다른 파일(main.jsx)에서 이름 없이 가져다 쓸 수 있게 내보낸다.
