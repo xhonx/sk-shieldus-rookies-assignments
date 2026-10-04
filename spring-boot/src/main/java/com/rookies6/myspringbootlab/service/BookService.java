@@ -133,6 +133,81 @@ public class BookService {
         return BookDTO.Response.fromEntity(updatedBook);
     }
 
+    //책 부분 수정 - 제공된 필드만 업데이트하고, 제공되지 않은 필드는 기존 값 유지
+    @Transactional
+    public BookDTO.Response patchBook(Long id, BookDTO.PatchRequest request) {
+        Book book = bookRepository.findByIdWithBookDetail(id)
+                .orElseThrow(() -> new BusinessException("Book Not Found", HttpStatus.NOT_FOUND));
+
+        if (request.getTitle() != null) {
+            book.setTitle(request.getTitle());
+        }
+        if (request.getAuthor() != null) {
+            book.setAuthor(request.getAuthor());
+        }
+        if (request.getIsbn() != null) {
+            //새로운 ISBN 으로 변경하는데 이미 다른 책이 사용 중이면 오류
+            if (!book.getIsbn().equals(request.getIsbn()) &&
+                    bookRepository.existsByIsbn(request.getIsbn())) {
+                throw new BusinessException("Book with this ISBN already Exist", HttpStatus.CONFLICT);
+            }
+            book.setIsbn(request.getIsbn());
+        }
+        if (request.getPrice() != null) {
+            book.setPrice(request.getPrice());
+        }
+        if (request.getPublishDate() != null) {
+            book.setPublishDate(request.getPublishDate());
+        }
+        if (request.getDetailRequest() != null) {
+            patchBookDetail(book, request.getDetailRequest());
+        }
+
+        Book updatedBook = bookRepository.save(book);
+        return BookDTO.Response.fromEntity(updatedBook);
+    }
+
+    //책 상세 정보 부분 수정
+    @Transactional
+    public BookDTO.Response patchBookDetail(Long id, BookDTO.BookDetailPatchRequest request) {
+        Book book = bookRepository.findByIdWithBookDetail(id)
+                .orElseThrow(() -> new BusinessException("Book Not Found", HttpStatus.NOT_FOUND));
+
+        patchBookDetail(book, request);
+
+        Book updatedBook = bookRepository.save(book);
+        return BookDTO.Response.fromEntity(updatedBook);
+    }
+
+    private void patchBookDetail(Book book, BookDTO.BookDetailPatchRequest request) {
+        BookDetail bookDetail = book.getBookDetail();
+        //상세 정보가 없던 책이면 새로 생성하여 연결
+        if (bookDetail == null) {
+            bookDetail = new BookDetail();
+            bookDetail.setBook(book);
+            book.setBookDetail(bookDetail);
+        }
+
+        if (request.getDescription() != null) {
+            bookDetail.setDescription(request.getDescription());
+        }
+        if (request.getLanguage() != null) {
+            bookDetail.setLanguage(request.getLanguage());
+        }
+        if (request.getPageCount() != null) {
+            bookDetail.setPageCount(request.getPageCount());
+        }
+        if (request.getPublisher() != null) {
+            bookDetail.setPublisher(request.getPublisher());
+        }
+        if (request.getCoverImageUrl() != null) {
+            bookDetail.setCoverImageUrl(request.getCoverImageUrl());
+        }
+        if (request.getEdition() != null) {
+            bookDetail.setEdition(request.getEdition());
+        }
+    }
+
     //책 삭제
     @Transactional
     public void deleteBook(Long id) {

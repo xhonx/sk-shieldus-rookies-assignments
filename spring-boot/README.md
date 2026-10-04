@@ -274,6 +274,43 @@ flush privileges;
 | `findBooksByAuthor()` | 저자로 책 검색 |
 | `findBookDetailByBookId()` | 책 ID로 상세 정보 조회 |
 
+### 부분수정(Patch) 기능 ( 선택 )
+
+| Method | URL | 내용 | 응답 |
+| --- | --- | --- | --- |
+| PATCH | `/api/books/{id}` | Book 의 일부 필드만 수정 (`PatchRequest`) | 200 OK / 400 검증 오류 / 404 Not Found / 409 ISBN 중복 |
+| PATCH | `/api/books/{id}/detail` | BookDetail 의 일부 필드만 수정 (`BookDetailPatchRequest`) | 200 OK / 404 Not Found |
+
+- **부분 업데이트** : null 체크를 통해 제공된 필드만 업데이트하고, 제공되지 않은 필드는 기존 값을 유지합니다.
+- **ISBN 체크** : ISBN 을 변경하지 않는 경우에는 체크하지 않고, 새로운 ISBN 으로 변경하는데 이미 다른 책이 사용 중이면 오류(409)가 발생합니다.
+
+제목만 수정 - `PATCH /api/books/1`
+
+```json
+{
+  "title": "새로운 제목"
+}
+```
+
+가격과 언어만 수정 - `PATCH /api/books/1`
+
+```json
+{
+  "price": 15000,
+  "detailRequest": {
+    "language": "Korean"
+  }
+}
+```
+
+BookDetail 의 설명만 수정 - `PATCH /api/books/1/detail`
+
+```json
+{
+  "description": "새로운 책 설명"
+}
+```
+
 ## 실행 방법
 
 jar 파일 생성
