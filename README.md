@@ -35,3 +35,4 @@ Spring Boot 제출 연습문제 (도서 관리 시스템) - 제출 단계별로 
 - [`spring-boot/`](./spring-boot) - Spring Boot 4.0.8 / Java 17 / Maven 프로젝트 (`com.rookies6.myspringbootlab`)
   - 제출2-0 (`main` 브랜치): Spring Boot 프로젝트 생성, 배너 변경, 환경변수 / 프로파일 설정
   - 제출2-1 (`lab_2-1` 브랜치): Book Entity + BookRepository + BookRepositoryTest 작성
+  - 제출2-2 (`lab_2-2` 브랜치): BookRestController 작성 (도서 등록 / 조회 / 수정 / 삭제 REST API)

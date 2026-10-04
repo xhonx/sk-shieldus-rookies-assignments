@@ -86,6 +86,55 @@ flush privileges;
 ./mvnw test -Dtest=BookRepositoryTest
 ```
 
+## [제출2-2] BookRestController + Entity + Repository
+
+`BookRestController` 작성 (`lab_2-2` 브랜치) - `BusinessException`, `DefaultExceptionAdvice`, `ErrorObject` 클래스 사용
+
+| Method | URL | 내용 | 응답 |
+| --- | --- | --- | --- |
+| POST | `/api/books` | 새 도서 등록 | 201 Created |
+| GET | `/api/books` | 모든 도서 조회 | 200 OK |
+| GET | `/api/books/{id}` | ID로 특정 도서 조회 | 200 OK / 404 Not Found |
+| GET | `/api/books/isbn/{isbn}/` | ISBN으로 도서 조회 | 200 OK / 404 Not Found |
+| GET | `/api/books/author/{author}` | 저자명으로 도서 목록 조회 | 200 OK |
+| PUT | `/api/books/{id}` | 도서 정보 수정 | 200 OK / 404 Not Found |
+| DELETE | `/api/books/{id}` | 도서 삭제 | 204 No Content / 404 Not Found |
+
+**Book 이 존재하지 않을 때 (404) 처리**
+
+- `getBookById()` : `Optional` 클래스의 `map()` / `orElse()` 를 사용하여 `ResponseEntity<Book>` 반환
+- `getBookByIsbn()` : `BusinessException` 과 `ErrorObject` / `DefaultExceptionAdvice` 사용
+
+```json
+{
+  "message": "Book Not Found",
+  "statusCode": 404,
+  "timestamp": "2026-10-04 21:52:11 일 오후"
+}
+```
+
+**새로운 도서 등록 할 때 사용하는 Request Body Json 데이터**
+
+```json
+{
+  "title": "스프링 부트 입문",
+  "author": "홍길동",
+  "isbn": "9788956746425",
+  "price": 30000,
+  "publishDate": "2025-05-07"
+}
+```
+
+```json
+{
+  "title": "JPA 프로그래밍",
+  "author": "박둘리",
+  "isbn": "9788956746432",
+  "price": 35000,
+  "publishDate": "2025-04-30"
+}
+```
+
 ## 실행 방법
 
 jar 파일 생성
