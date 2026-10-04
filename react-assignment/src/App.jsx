@@ -26,6 +26,7 @@ import { EMPTY_FORM, toRequest, toFormValues } from "./lib/bookData.js";
 // 화면 조각
 import BookForm from "./components/BookForm.jsx";
 import BookTable from "./components/BookTable.jsx";
+import BookDetail from "./components/BookDetail.jsx";
 
 // 성공 메시지가 저절로 사라지기까지의 시간(ms) — book_ecma 와 같다.
 const MESSAGE_TIMEOUT = 3000;
@@ -206,6 +207,11 @@ function App() {
                 resetForm();
             }
 
+            // 상세 보기로 열어 둔 도서를 삭제했다면 상세 보기도 닫는다.
+            if (detailBook?.id === bookId) {
+                setDetailBook(null);
+            }
+
             await loadBooks();
         } catch (error) {
             console.error("Error:", error);
@@ -213,8 +219,21 @@ function App() {
         }
     }
 
-    // 상세 보기는 과제 10 에서 채운다.
-    function handleDetail() {}
+    /* 도서 한 권의 상세 정보를 보여 준다 — book_ecma 의 showDetail()
+       book_ecma 에서는 서버를 부르고 곧바로 alert 을 띄워 남는 값이 없었다.
+       여기서는 "지금 무엇을 보여 주는 중인가" 를 detailBook 에 담아 둔다.
+       값이 있으면 BookDetail 이 그려지고, null 이면 사라진다. */
+    async function handleDetail(bookId) {
+        setMessage(null);
+
+        try {
+            const book = await fetchBook(bookId);
+            setDetailBook(book);
+        } catch (error) {
+            console.error("Error:", error);
+            setMessage({ text: error.message, type: "error" });
+        }
+    }
 
     // 태그 여러 개를 나란히 돌려줄 수 없으므로 프래그먼트(<> </>)로 감싼다.
     return (
@@ -239,6 +258,8 @@ function App() {
                 onDelete={handleDelete}
                 onDetail={handleDetail}
             />
+
+            <BookDetail book={detailBook} onClose={() => setDetailBook(null)} />
         </>
     );
 }

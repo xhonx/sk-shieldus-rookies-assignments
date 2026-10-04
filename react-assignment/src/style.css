@@ -262,3 +262,41 @@ tr:hover {
     border-left: 4px solid #4CAF50;
     /* 왼쪽에 녹색 띠 */
 }
+
+/* ---- React 버전에서 추가된 스타일 ---- */
+
+/* 상세 보기 카드 — 표 아래에 펼쳐진다 */
+.detail-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* 항목 이름과 값을 두 칸으로 나란히 놓는다 */
+.detail-list {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 8px 15px;
+    margin: 0;
+}
+
+.detail-list dt {
+    color: #555;
+    font-weight: bold;
+}
+
+.detail-list dd {
+    margin: 0;
+    white-space: pre-wrap;
+    /* 설명에 넣은 줄바꿈을 그대로 보여 준다 */
+    overflow-wrap: anywhere;
+    /* 긴 주소가 카드 밖으로 넘치지 않게 한다 */
+}
+
+/* 표지 이미지 */
+.detail-cover {
+    max-width: 160px;
+    border-radius: 4px;
+}
