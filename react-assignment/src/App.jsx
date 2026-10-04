@@ -9,10 +9,13 @@ import "./style.css";
 import { useEffect, useState } from "react";
 
 // 서버와 대화하는 함수 — book_ecma 의 파일을 그대로 쓴다.
-import { fetchBooks } from "./api/bookApi.js";
+import { fetchBooks, createBook, updateBook } from "./api/bookApi.js";
+
+// 입력값 검사 — 이것도 book_ecma 의 파일 그대로다.
+import { validateBook } from "./lib/validation.js";
 
 // 폼 값과 서버 데이터 사이의 변환
-import { EMPTY_FORM } from "./lib/bookData.js";
+import { EMPTY_FORM, toRequest } from "./lib/bookData.js";
 
 // 화면 조각
 import BookForm from "./components/BookForm.jsx";
@@ -107,13 +110,47 @@ function App() {
         setForm({ ...form, [name]: value });
     }
 
-    // 폼 제출과 취소는 과제 8 에서 채운다.
-    // 지금은 제출할 때 페이지가 새로고침되는 것만 막아 둔다.
-    function handleSubmit(event) {
-        event.preventDefault();
+    // 폼을 비우고 등록 모드로 되돌린다 — book_ecma 의 resetForm()
+    // 등록 성공 뒤, 취소 버튼, 수정 중이던 도서를 삭제했을 때 부른다.
+    function resetForm() {
+        setForm(EMPTY_FORM);
+        setEditingId(null);
     }
 
-    function resetForm() {}
+    /* 등록 / 수정 — 폼 제출
+       book_ecma 의 submit 핸들러를 그대로 옮겼다.
+       달라진 것은 값을 DOM 이 아니라 state 에서 꺼낸다는 점이다. */
+    async function handleSubmit(event) {
+        event.preventDefault();          // 폼 제출로 페이지가 새로고침되는 것을 막는다
+        setMessage(null);                // 앞선 메시지를 지운다 — clearMessages()
+
+        const bookData = toRequest(form);
+
+        // validateBook 은 문제가 있으면 문구를, 없으면 null 을 돌려준다.
+        // 검사 함수는 한 줄도 고치지 않았다.
+        const errorMessage = validateBook(bookData);
+        if (errorMessage) {
+            setMessage({ text: errorMessage, type: "error" });
+            return;
+        }
+
+        try {
+            // editingId 에 값이 있으면 수정, 없으면 등록이다.
+            if (isEditing) {
+                await updateBook(editingId, bookData);
+                setMessage({ text: "도서 정보가 성공적으로 수정되었습니다.", type: "success" });
+            } else {
+                await createBook(bookData);
+                setMessage({ text: "도서가 성공적으로 등록되었습니다.", type: "success" });
+            }
+
+            resetForm();
+            await loadBooks();            // 목록 새로고침
+        } catch (error) {
+            console.error("Error:", error);
+            setMessage({ text: error.message, type: "error" });   // 서버가 보낸 실제 메시지
+        }
+    }
 
     /* 표의 버튼이 눌렸을 때 부를 함수들.
        속은 과제 9 · 10 에서 채운다. 지금은 표를 먼저 확인하기 위해 비워 둔다.
